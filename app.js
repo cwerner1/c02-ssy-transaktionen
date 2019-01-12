@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 
@@ -7,6 +6,7 @@ const bodyParser = require('body-parser');
 const index = require('./routes/index');
 const invoices = require('./routes/invoices');
 const cars = require('./routes/cars');
+const coordinator = require('./routes/coordinator');
 
 const app = express();
 
@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/', index);
 app.use('/invoices', invoices);
 app.use('/cars', cars);
+app.use('/coordinator', coordinator);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

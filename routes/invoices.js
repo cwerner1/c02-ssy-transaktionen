@@ -10,6 +10,7 @@ router.put('/:invoiceNr', updateInvoice);
 
 router.post('/prepare', prepare);
 router.post('/commit', commit);
+router.post('/cancel', cancel);
 
 
 let invoiceCollection = db.getCollection('invoices');
@@ -72,5 +73,9 @@ function commit(req, resp) {
     resp.status(200).end();
 }
 
+function cancel(req, resp) {
+    in_transaction = false;
+    resp.status(200).end();
+}
 
 module.exports = router;
