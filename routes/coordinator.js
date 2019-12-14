@@ -49,18 +49,17 @@ function startTransaction(req, transactionResp) {
         // ansonsten sind beide bereit -> commit; wir warten Antworten nicht ab.
         Request.post({
             url: 'http://127.0.0.1:3000/cars/commit',
-            json: true
+            json: {carNr: req.body.carNr}
         });
         Request.post({
             url: 'http://127.0.0.1:3000/invoices/commit',
-            json: true
+            json: {invoiceNr: req.body.carNr}
         });
 
         transactionResp.status(200).json('Transaktion erfolgreich beendet.');
     }
 
 }
-
 
 
 module.exports = router;

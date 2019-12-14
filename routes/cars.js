@@ -13,7 +13,6 @@ router.post('/commit', commit);
 router.post('/cancel', cancel);
 
 
-
 let carCollection = db.getCollection('cars');
 
 function newCar(request, response) {
@@ -44,33 +43,31 @@ function updateRenter(request, response) {
     response.json(car);
 }
 
-let in_transaction = false;
-let transaction_carNr = 0;
-let transaction_renter = "";
+let in_transaction = {};
+let transaction_carNr = {};
 
 function prepare(req, resp) {
     // { carNr: 2, renter: "Frida Flink" }
 
-    if (in_transaction) {
+    if ( in_transaction[req.body.carNr] ) {
         resp.status(409).end();
         return;
     }
-    in_transaction = true;
-    transaction_carNr = req.body.carNr;
-    transaction_renter = req.body.renter;
+    in_transaction[req.body.carNr] = true;
+    transaction_carNr[req.body.carNr] = req.body.renter;
     resp.status(200).end();
 }
 
 function commit(req, resp) {
-    let car = carCollection.get(transaction_carNr);
-    car.setRenter(transaction_renter);
+    let car = carCollection.get(req.body.carNr);
+    car.setRenter(transaction_carNr[req.body.carNr]);
     carCollection.update(car);
-    in_transaction = false;
+    in_transaction[req.body.carNr] = false;
     resp.status(200).end();
 }
 
 function cancel(req, resp) {
-    in_transaction = false;
+    in_transaction[req.body.carNr] = false;
     resp.status(200).end();
 }
 

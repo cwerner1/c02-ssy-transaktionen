@@ -42,39 +42,41 @@ function updateInvoice(request, response) {
 }
 
 
-let in_transaction = false;
-let transaction_invoiceNr = 0;
-let transaction_person = "";
-let transaction_amount = 0;
+let in_transaction = {};
+let transaction_person = {};
+let transaction_amount = {};
 
 function prepare(req, resp) {
     // { invoiceNr: 2, person: "Frida Flink", amount: 190 }
 
-    if (in_transaction) {
+    if (in_transaction[req.body.invoiceNr]) {
         resp.status(409).end();
         return;
     }
-    in_transaction = true;
-    transaction_invoiceNr = req.body.invoiceNr;
-    transaction_person = req.body.person;
-    transaction_amount = req.body.amount;
+    in_transaction[req.body.invoiceNr] = true;
+    transaction_person[req.body.invoiceNr] = req.body.person;
+    transaction_amount[req.body.invoiceNr] = req.body.amount;
     resp.status(200).end();
 }
 
 function commit(req, resp) {
-    let invoice = invoiceCollection.get(transaction_invoiceNr);
+    let invoice = invoiceCollection.get(req.body.invoiceNr);
     invoice.update({
-        person: transaction_person,
-        amount: transaction_amount
+        person: transaction_person[req.body.invoiceNr],
+        amount: transaction_amount[req.body.invoiceNr]
     });
 
     invoiceCollection.update(invoice);
-    in_transaction = false;
+    transaction_person[req.body.invoiceNr] = null
+    transaction_amount[req.body.invoiceNr] = null;
+    in_transaction[req.body.invoiceNr] = false;
     resp.status(200).end();
 }
 
 function cancel(req, resp) {
-    in_transaction = false;
+    transaction_person[req.body.invoiceNr] = null
+    transaction_amount[req.body.invoiceNr] = null;
+    in_transaction[req.body.invoiceNr] = false;
     resp.status(200).end();
 }
 
