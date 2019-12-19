@@ -55,7 +55,7 @@ function startTransaction(req, transactionResp) {
             json: true
         });
         Request.post({
-            url: 'http://127.0.0.1:3000/invoices/commit',
+            url: 'http://127.0.0.1:3000/invoices/commit/' + carNr, // bei uns immer invoiceNr == carNr (siehe database.js)
             json: true
         });
 
