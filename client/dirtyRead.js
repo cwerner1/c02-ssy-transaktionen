@@ -6,13 +6,13 @@ const Helper = require('./helper');
 
 let prozess1 = new Helper("Prozess 1");
 prozess1.delay(
-    10, prozess1.updateRenter,
-    2, 'Frida Flink',
+    10,//ms
+    prozess1.updateRenter, 2, 'Frida Flink',
     "Vermietung durchführen"
 );
 prozess1.delay(
-    500, prozess1.updateInvoice,
-    2, new Invoice('Frida Flink', 110),
+    500,//ms
+    prozess1.updateInvoice, 2, new Invoice('Frida Flink', 110),
     "Rechnung eintragen"
 );
 
@@ -22,7 +22,9 @@ prozess1.delay(
 // "Prozess 2"
 
 let prozess2 = new Helper("Prozess 2");
-prozess2.delay(200, prozess2.showCarAndInvoice, 2, 2);
+prozess2.delay(
+    200,//ms
+    prozess2.showCarAndInvoice, 2, 2);
 
 
 

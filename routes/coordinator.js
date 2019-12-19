@@ -19,7 +19,7 @@ function startTransaction(req, transactionResp) {
     }, carResponse);
 
     function carResponse(err, carResp, body) {
-        if (carResp.statusCode != 200) {
+        if (carResp.statusCode !== 200) {
             transactionResp.status(409).json('/cars nicht bereit für prepare');
             return;
         }
@@ -35,7 +35,7 @@ function startTransaction(req, transactionResp) {
     }
 
     function invoiceResponse(err, invoiceResp, body) {
-        if (invoiceResp.statusCode != 200) {
+        if (invoiceResp.statusCode !== 200) {
             // Cars muss wieder freigegeben werden
             Request.post({
                 url: 'http://127.0.0.1:3000/cars/cancel',
