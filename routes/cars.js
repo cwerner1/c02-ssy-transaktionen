@@ -9,8 +9,10 @@ router.get('/:carNr', getCar);
 router.patch('/:carNr/renter', updateRenter);
 
 router.post('/prepare', prepare);
-router.post('/commit', commit);
-router.post('/cancel', cancel);
+// die /commit- und /cancel-Nachrichten müssen nun auch die Car-Nummer enthalten,
+// da wir sonst nicht wissen, welche Transaktion comitted bzw. abgebrochen werden soll
+router.post('/commit/:carNr', commit);
+router.post('/cancel/:carNr', cancel);
 
 
 
@@ -44,33 +46,38 @@ function updateRenter(request, response) {
     response.json(car);
 }
 
-let in_transaction = false;
-let transaction_carNr = 0;
-let transaction_renter = "";
+// Umstellen auf Locking je Car: Objekte, statt einfache Variable
+let in_transaction = {};
+// let transaction_carNr = {}; // wird nicht mehr benötigt, da carNr bereits Teil von commit/cancel-Nachricht
+let transaction_renter = {};
 
 function prepare(req, resp) {
     // { carNr: 2, renter: "Frida Flink" }
+    let carNr = req.body.carNr;
 
-    if (in_transaction) {
+    if (in_transaction[carNr] === true) {
         resp.status(409).end();
         return;
     }
-    in_transaction = true;
-    transaction_carNr = req.body.carNr;
-    transaction_renter = req.body.renter;
+    in_transaction[carNr] = true;
+    transaction_renter[carNr] = req.body.renter;
     resp.status(200).end();
 }
 
 function commit(req, resp) {
-    let car = carCollection.get(transaction_carNr);
-    car.setRenter(transaction_renter);
+    // parseInt(), da req.params immer Strings sind, für collection.get() aber String "3" !==  Int 3
+    // (und initial wird Record mit CarNr als Integer angelegt)
+    let carNr = parseInt(req.params.carNr);
+    let car = carCollection.get(carNr);
+    car.setRenter(transaction_renter[carNr]);
     carCollection.update(car);
-    in_transaction = false;
+    in_transaction[carNr] = false;
     resp.status(200).end();
 }
 
 function cancel(req, resp) {
-    in_transaction = false;
+    let carNr = parseInt(req.params.carNr);
+    in_transaction[carNr] = false;
     resp.status(200).end();
 }
 

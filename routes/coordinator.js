@@ -10,10 +10,13 @@ function startTransaction(req, transactionResp) {
          amount: 190
        }
      */
+
+    const carNr = req.body.carNr;
+
     Request.post({
         url: 'http://127.0.0.1:3000/cars/prepare',
         json: {
-            carNr: req.body.carNr,
+            carNr: carNr,
             renter: req.body.renter
         }
     }, carResponse);
@@ -27,7 +30,7 @@ function startTransaction(req, transactionResp) {
         Request.post({
             url: 'http://127.0.0.1:3000/invoices/prepare',
             json: {
-                invoiceNr: req.body.carNr,
+                invoiceNr: carNr,
                 person: req.body.renter,
                 amount: req.body.amount
             }
@@ -38,7 +41,7 @@ function startTransaction(req, transactionResp) {
         if (invoiceResp.statusCode !== 200) {
             // Cars muss wieder freigegeben werden
             Request.post({
-                url: 'http://127.0.0.1:3000/cars/cancel',
+                url: 'http://127.0.0.1:3000/cars/cancel/' + carNr,
                 json: true
             });
             // wir warten die Antwort von /cars nicht ab, sondern senden gleich Fehler an Client retour
@@ -48,7 +51,7 @@ function startTransaction(req, transactionResp) {
 
         // ansonsten sind beide bereit -> commit; wir warten Antworten nicht ab.
         Request.post({
-            url: 'http://127.0.0.1:3000/cars/commit',
+            url: 'http://127.0.0.1:3000/cars/commit/' + carNr,
             json: true
         });
         Request.post({
@@ -58,9 +61,6 @@ function startTransaction(req, transactionResp) {
 
         transactionResp.status(200).json('Transaktion erfolgreich beendet.');
     }
-
 }
-
-
 
 module.exports = router;
